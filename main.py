@@ -1,7 +1,8 @@
+# Main script: main.py
 import numpy as np
 import pymc as pm
 import matplotlib.pyplot as plt
-from utils import load_time_series, categorize_states, plot_results
+from utils import load_time_series, categorize_states, plot_results, extract_transition_probabilities
 from config import CONFIG
 
 def main():
@@ -56,6 +57,10 @@ def main():
 
         # Sampling
         trace = pm.sample(1000, tune=1000, return_inferencedata=True, target_accept=0.95)
+
+    # Extract transition probabilities
+    transition_probs = extract_transition_probabilities(trace)
+    print("Transition Probabilities:", transition_probs)
 
     # Categorize states and plot results
     predicted_states = categorize_states(trace, n)
