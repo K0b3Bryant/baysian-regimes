@@ -1,4 +1,4 @@
-# Markov Switching Regression with Hierarchical Priors
+# Bayesian Markov Switching Regression with Hierarchical Priors
 
 This project implements a Markov Switching Regression model using PyMC for Bayesian inference. The model estimates state-specific parameters (means and standard deviations) and transition probabilities for a time series. Hierarchical priors are used to incorporate higher-level uncertainty in state-specific parameters.
 
