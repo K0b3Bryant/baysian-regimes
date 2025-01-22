@@ -33,8 +33,3 @@ def plot_results(data, predicted_states):
     plt.legend()
     plt.title("Markov Switching Regression: Predicted States")
     plt.show()
-
-# Config file: config.py
-CONFIG = {
-    "time_series_path": "time_series.csv",  # Path to the time series data file
-}
