@@ -8,7 +8,7 @@ def main():
     # Load the time series data
     data = load_time_series(CONFIG["time_series_path"])
 
-    # Define the Markov Switching Regression model
+    # Define the Markov Switching Regression model with Hierarchical Priors
     n = len(data)
     with pm.Model() as model:
         # Transition probabilities (logit parameterization)
@@ -28,16 +28,20 @@ def main():
         # about the probability of starting in either state.
         pi_0 = pm.Dirichlet("pi_0", a=np.ones(2))
 
-        # Emission model (state-specific means and stds)
-        # The prior for state means assumes a normal distribution centered at 0 with a wide standard deviation of 5.
-        # This choice reflects a diffuse prior, indicating limited prior knowledge about the actual means.
-        # It allows the data to primarily influence the posterior estimates.
-        state_means = pm.Normal("state_means", mu=0, sigma=5, shape=2)
+        # Hierarchical Priors for Emission Model
+        # Hyperpriors for state means
+        mean_mu = pm.Normal("mean_mu", mu=0, sigma=10)
+        mean_sigma = pm.Exponential("mean_sigma", lam=1)
 
-        # The prior for state standard deviations assumes an exponential distribution with a rate parameter of 1.
-        # This reflects a preference for smaller standard deviations but still allows for larger values if supported by the data.
-        # Consider whether this aligns with expectations about variability in the states.
-        state_stds = pm.Exponential("state_stds", lam=1, shape=2)
+        # State-specific means drawn from the hyperprior
+        state_means = pm.Normal("state_means", mu=mean_mu, sigma=mean_sigma, shape=2)
+
+        # Hyperpriors for state standard deviations
+        std_alpha = pm.Gamma("std_alpha", alpha=2, beta=0.5)
+        std_beta = pm.Exponential("std_beta", lam=1)
+
+        # State-specific standard deviations drawn from the hyperprior
+        state_stds = pm.InverseGamma("state_stds", alpha=std_alpha, beta=std_beta, shape=2)
 
         # Hidden states (categorical)
         states = pm.Categorical("states", p=pi_0, shape=n)
